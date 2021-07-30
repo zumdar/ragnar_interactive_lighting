@@ -24,6 +24,10 @@ int followerStates [] = {LOW, LOW, LOW, LOW, LOW};
 
 void setup() {
 
+  Firmata.setFirmwareVersion(FIRMATA_FIRMWARE_MAJOR_VERSION, FIRMATA_FIRMWARE_MINOR_VERSION);
+  Firmata.attach(DIGITAL_MESSAGE, digitalWriteCallback);
+  Firmata.begin(57600);
+
 #ifdef DEBUG
   Serial.begin(9600);
   Serial.println("Leader Booted");
@@ -62,7 +66,7 @@ void followerOne() {
     if (followerValues[0] == 1) {
       digitalWrite(ledPin, HIGH);
       if (followerStates[0] == LOW) {
-        digitalWrite(23, HIGH);
+        //firmata goes here
 #ifdef DEBUG
         Serial.println("send data to computer world from follower One A");
 #endif
@@ -75,6 +79,25 @@ void followerOne() {
       }
     }
   }
+
+  while (HWSONE.available()) {
+    followerValues[1] = HWSONE.read();
+    if (followerValues[1] == 2) {
+      digitalWrite(ledPin, HIGH);
+      if (followerStates[1] == LOW) {
+        //firmata goes here
+#ifdef DEBUG
+        Serial.println("send data to computer world from follower One B");
+#endif
+        followerStates[1] = HIGH;
+      }
+    } else {
+      digitalWrite(ledPin, LOW);
+      if (followerStates[1] == HIGH) {
+        followerStates[1] = LOW;
+      }
+    }
+  }
 }
 
 void followerTwo() {
@@ -84,7 +107,9 @@ void followerTwo() {
       digitalWrite(ledPin, HIGH);
       if (followerStates[2] == LOW) {
         //firmata goes here
+#ifdef DEBUG
         Serial.println("send data to computer world from follower two");
+#endif
         followerStates[2] = HIGH;
       }
     } else {
@@ -103,7 +128,9 @@ void followerThree() {
       digitalWrite(ledPin, HIGH);
       if (followerStates[3] == LOW) {
         //firmata goes here
+#ifdef DEBUG
         Serial.println("send data to computer world from follower three");
+#endif
         followerStates[3] = HIGH;
       }
     } else {
@@ -122,7 +149,9 @@ void followerFour() {
       digitalWrite(ledPin, HIGH);
       if (followerStates[4] == LOW) {
         //firmata goes here
+#ifdef DEBUG
         Serial.println("send data to computer world from follower four");
+#endif
         followerStates[4] = HIGH;
       }
     } else {
