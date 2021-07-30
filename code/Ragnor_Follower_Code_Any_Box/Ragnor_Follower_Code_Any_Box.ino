@@ -13,10 +13,10 @@
 #define dataPinOne 14 //collects data to send to leader
 #define dataPinTwo 15 //collects data to send to leader 
 
-int valPirOne = 0; // pir value
+byte valPirOne = 0; // pir value
 int pirStateOne = LOW; //state of pir sensor
 
-int valPirTwo = 0;
+byte valPirTwo = 0;
 int pirStateTwo = LOW;
 
 void setup() {
@@ -33,28 +33,32 @@ void setup() {
   digitalWrite(enablePin, HIGH); //Always high because we send data constantly
 
   pinMode(ledPin, OUTPUT); //led pin configuration
-  pinMode(dataPinOne, INPUT); //input pin for pir sensor
-  //pinMode(dataPinTwo, INPUT);
+  pinMode(dataPinOne, INPUT_PULLDOWN); //input pin for pir sensor
+  pinMode(dataPinTwo, INPUT_PULLDOWN);
 
 }
 
 void loop() {
-  pirOneDetection();
-  //pirTwoDetection();
+  pirDetection();
 }
 
-void pirOneDetection() {
+void pirDetection() {
   valPirOne = digitalRead(dataPinOne);
+  valPirTwo = digitalRead(dataPinTwo);
+
+  //sensor 1 motion detected
   if (valPirOne == HIGH) {
     digitalWrite(ledPin, HIGH);
     if (pirStateOne == LOW) {
-      HWSERIAL.write(1); //send
+      HWSERIAL.write(2);
 #ifdef DEBUG
       Serial.println("motion detected sensor 1 sending value");
 #endif
       pirStateOne = HIGH;
     }
-  } else {
+  }
+  //sensor motion capture over
+  if (valPirOne == LOW) {
     digitalWrite(ledPin, LOW);
     if (pirStateOne == HIGH) {
       HWSERIAL.write(0);
@@ -64,23 +68,22 @@ void pirOneDetection() {
       pirStateOne = LOW;
     }
   }
-}
-
-void pirTwoDetection() {
-  valPirTwo = digitalRead(dataPinTwo);
+  //sensor 2
   if (valPirTwo == HIGH) {
     digitalWrite(ledPin, HIGH);
     if (pirStateTwo == LOW) {
-      HWSERIAL.write(2); //send
+      HWSERIAL.write(3);
 #ifdef DEBUG
       Serial.println("motion detected sensor 2 sending value");
 #endif
       pirStateTwo = HIGH;
     }
-  } else {
+  }
+
+  if (valPirTwo == LOW) {
     digitalWrite(ledPin, LOW);
     if (pirStateTwo == HIGH) {
-      HWSERIAL.write(0);
+      HWSERIAL.write(1);
 #ifdef DEBUG
       Serial.println("motion ended sensor 2"); //takes 3 seconds to reset
 #endif
